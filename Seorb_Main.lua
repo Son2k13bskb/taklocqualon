@@ -1,7 +1,16 @@
 -- [[ SEORB HUB - MAIN SCRIPT ]]
 
-_G.SeorbConfig = {
+local PlaceId = game.PlaceId
+local Sea1_ID = 2753915549
+local Sea2_ID = 4442272000
+local Sea3_ID = 7449423635
+
+_G.SeorbConfig = _G.SeorbConfig or {
     FarmLevel = false,
+    AutoYama = false,
+    AutoTushita = false,
+    AutoCDK = false,
+    AutoSoulGuitar = false,
     WeaponSelect = "Combat", 
     AttackSpeed = "Fast Attack", 
     AutoStats = false,
@@ -84,4 +93,43 @@ task.spawn(function()
     end
 end)
 
-print("--- SEORB HUB MAIN STARTED ---")
+local SeorbHub = {Tabs = {}}
+
+-- Các Tab CƠ BẢN (Xuất hiện ở mọi Sea)
+SeorbHub.Tabs.MainFarm = function() print("[UI] Tải Tab: Main Farm & Stats...") end
+SeorbHub.Tabs.ESP = function() print("[UI] Tải Tab: ESP & Cài đặt người chơi...") end
+
+-- Các Tab SEA 2 (Chỉ xuất hiện nếu ở Sea 2 hoặc Sea 3)
+SeorbHub.Tabs.Sea2_Features = function()
+    print("[UI] Tải Tab: Đi Raid Thức Tỉnh & Auto Cyborg...")
+end
+
+-- Các Tab SEA 3 (Chỉ xuất hiện nếu ở Sea 3)
+SeorbHub.Tabs.Sea3_Features = function()
+    print("[UI] Tải Tab: Vũ Khí Tối Thượng Sea 3")
+    print("  + Toggle: Auto Yama (Nhận Quest Elite Hunter)")
+    print("  + Toggle: Auto Tushita (Chờ đuốc và diệt quái)")
+    print("  + Toggle: Auto CDK Quest (Làm chuỗi nhiệm vụ)")
+    print("  + Toggle: Auto Soul Guitar (Làm trò giải đố Nghĩa trang)")
+    print("[UI] Tải Tab: Sea Event (Tiki Outpost)...")
+end
+
+-- TIẾN HÀNH RENDER GIAO DIỆN DỰA TRÊN PLACE ID
+print("--- KHỞI TẠO SEORB UI CHO KHU VỰC HIỆN TẠI ---")
+SeorbHub.Tabs.MainFarm()
+SeorbHub.Tabs.ESP()
+
+if PlaceId == Sea2_ID then
+    print("[HỆ THỐNG] Nhận diện: Đang ở Sea 2!")
+    SeorbHub.Tabs.Sea2_Features()
+    
+elseif PlaceId == Sea3_ID then
+    print("[HỆ THỐNG] Nhận diện: Đang ở Sea 3!")
+    SeorbHub.Tabs.Sea2_Features() -- Kế thừa các tính năng Raid từ Sea 2
+    SeorbHub.Tabs.Sea3_Features()
+    
+elseif PlaceId == Sea1_ID then
+    print("[HỆ THỐNG] Nhận diện: Đang ở Sea 1! Chỉ tải các chức năng cơ bản.")
+end
+
+print("--- SEORB HUB MAIN ĐÃ SẴN SÀNG ---")
