@@ -6,6 +6,11 @@ _G.KaitunConfig = {
     AutoUnlockSeas = true
 }
 
+_G.SeorbConfig = _G.SeorbConfig or {}
+_G.SeorbConfig.FarmLevel = true 
+_G.SeorbConfig.AutoStats = true
+_G.SeorbConfig.AutoStoreFruit = true
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
@@ -48,40 +53,50 @@ StatusLabel.Font = Enum.Font.Gotham
 StatusLabel.TextWrapped = true
 StatusLabel.Parent = MainFrame
 
--- HÀM CẬP NHẬT TRẠNG THÁI CHO GUI
 local function UpdateStatus(text)
-    StatusLabel.Text = "Status: " .. text
+    -- Giả sử biến StatusLabel đã được tạo ở đoạn code trên
+    -- StatusLabel.Text = "Status: " .. text
+    print("[KAITUN STATUS] " .. text) -- Tạm in ra F9 để dễ theo dõi
 end
 
--- ==========================================
--- LOGIC KAITUN CHÍNH (BACKEND ENGINE)
--- ==========================================
+-- 3. LOGIC ĐIỀU HƯỚNG KAITUN CHÍNH
 task.spawn(function()
-    while task.wait(1) do
+    while task.wait(2) do
         local currentLevel = LocalPlayer.Data.Level.Value
+        local placeId = game.PlaceId
         
-        -- Dừng Kaitun nếu đạt Max Level
         if currentLevel >= _G.KaitunConfig.TargetLevel then
-            UpdateStatus("Đã đạt Level Max (" .. currentLevel .. "). Tạm dừng!")
-            task.wait(5)
+            UpdateStatus("Hoàn thành Kaitun! Đạt giới hạn Max Level 2550.")
+            _G.SeorbConfig.FarmLevel = false -- Tắt tự farm của Main
+            task.wait(10)
             continue
         end
 
-        -- Logic phân loại Quest theo Level
-        if currentLevel < 10 then
-            UpdateStatus("Đang farm Băng Cướp (Bandits) - Đảo Khởi Điểm...")
-            -- Gọi hàm nhận Quest và đánh quái ở đây
-        elseif currentLevel >= 10 and currentLevel < 15 then
-            UpdateStatus("Đang farm Khỉ (Monkeys) - Đảo Rừng Rậm...")
-            -- Gọi hàm nhận Quest Monkey
-        elseif currentLevel >= 700 and currentLevel < 725 then
-            UpdateStatus("Đang làm nhiệm vụ sang Sea 2 (Đánh Ice Admiral)...")
-            -- Gọi hàm chuỗi Quest sang Sea 2
+        -- LOGIC CHUYỂN SEA
+        if currentLevel >= 700 and placeId == 2753915549 then
+            UpdateStatus("Đạt cấp 700! Bắt đầu chuỗi Quest giải cứu để sang Sea 2...")
+            -- Kích hoạt logic Auto Quest Sea 2
+        elseif currentLevel >= 1500 and placeId == 4442272000 then
+            UpdateStatus("Đạt cấp 1500! Đang farm Rip_Indra để sang Sea 3...")
+            -- Kích hoạt logic qua Sea 3
         else
-            UpdateStatus("Đang tự động cày cấp: Level " .. currentLevel .. " / " .. _G.KaitunConfig.TargetLevel)
-            -- Logic vòng lặp đánh quái cơ bản
+            -- LOGIC GHÉP VŨ KHÍ NẾU ĐANG Ở SEA 3 VÀ ĐẠT LEVEL
+            if placeId == 7449423635 then
+                if currentLevel >= 2000 and not _G.SeorbConfig.AutoCDK then
+                    UpdateStatus("Đang tiến hành quest Yama & Tushita để ghép CDK...")
+                    _G.SeorbConfig.AutoYama = true
+                    _G.SeorbConfig.AutoTushita = true
+                elseif currentLevel >= 2300 and not _G.SeorbConfig.AutoSoulGuitar then
+                    UpdateStatus("Đủ cấp! Đợi trăng tròn để ghép Soul Guitar...")
+                    _G.SeorbConfig.AutoSoulGuitar = true
+                else
+                    UpdateStatus("Tiến trình: Đang farm tại Sea 3 (Level " .. currentLevel .. ")")
+                end
+            else
+                UpdateStatus("Tiến trình: Cày cấp tự động (Level " .. currentLevel .. ")")
+            end
         end
     end
 end)
 
-print("--- SEORB KAITUN STARTED ---")
+print("--- SEORB KAITUN ENGINE ĐÃ LIÊN KẾT THÀNH CÔNG ---")
